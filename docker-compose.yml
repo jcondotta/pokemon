@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  sonarqube:
+    image: sonarqube:lts
+    container_name: sonar
+    restart: on-failure
+    ports:
+      - "9000:9000"
