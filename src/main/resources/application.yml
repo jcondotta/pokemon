@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: pokemon-service
+
+cache:
+  caffeine:
+    expire-after-write-seconds: 20
+    maximum-size: 100
+
+pokemon:
+  api:
+    fetch-by-id:
+      url: 'https://pokeapi.co/api/v2/pokemon/{id}'
+      thread-pool-size: 10
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
