@@ -1,16 +1,16 @@
 package com.jcondotta.pokemon.cache.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.jcondotta.pokemon.TestPokemon;
+import com.jcondotta.pokemon.helper.TestPokemon;
 import com.jcondotta.pokemon.cache.CacheService;
-import com.jcondotta.pokemon.service.PokemonCacheKey;
+import com.jcondotta.pokemon.cache.PokemonCacheKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,14 +21,14 @@ import static org.mockito.Mockito.*;
 class CaffeineCacheServiceTest {
 
     private static final Integer CHARIZARD_ID = TestPokemon.CHARIZARD.getId();
-    private static final String CHARIZARD_CACHE_KEY = PokemonCacheKey.DETAILS.format(CHARIZARD_ID);
+    private static final String CHARIZARD_CACHE_KEY = PokemonCacheKey.POKEMON_DETAILS.format(CHARIZARD_ID);
     private static final String CHARIZARD_CACHE_VALUE = TestPokemon.CHARIZARD.getDetails();
 
     @Mock
     private Cache<String, String> mockCache;
 
     @Mock
-    private Function<String, String> valueLoaderMock;
+    private Function<String, Optional<String>> valueLoaderMock;
 
     private CacheService<String, String> cacheService;
 
@@ -67,7 +67,7 @@ class CaffeineCacheServiceTest {
         when(mockCache.getIfPresent(CHARIZARD_CACHE_KEY))
                 .thenReturn(CHARIZARD_CACHE_VALUE);
 
-        var optCacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY);
+        var optCacheValue = cacheService.get(CHARIZARD_CACHE_KEY);
         assertThat(optCacheValue)
                 .isPresent()
                 .hasValue(CHARIZARD_CACHE_VALUE);
@@ -80,7 +80,7 @@ class CaffeineCacheServiceTest {
         when(mockCache.getIfPresent(CHARIZARD_CACHE_KEY))
                 .thenReturn(null);
 
-        var optCacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY);
+        var optCacheValue = cacheService.get(CHARIZARD_CACHE_KEY);
         assertThat(optCacheValue).isEmpty();
 
         verify(mockCache).getIfPresent(CHARIZARD_CACHE_KEY);
@@ -97,39 +97,34 @@ class CaffeineCacheServiceTest {
 
     @Test
     void shouldReturnCachedValue_whenKeyExistsInGetOrFetch(){
-        when(mockCache.get(eq(CHARIZARD_CACHE_KEY), ArgumentMatchers.<Function<String, String>>any()))
-                .thenReturn(CHARIZARD_CACHE_VALUE);
+        when(mockCache.getIfPresent(eq(CHARIZARD_CACHE_KEY))).thenReturn(CHARIZARD_CACHE_VALUE);
 
         var cacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY, valueLoaderMock);
-        assertThat(cacheValue).isEqualTo(CHARIZARD_CACHE_VALUE);
+        assertThat(cacheValue).hasValue(CHARIZARD_CACHE_VALUE);
 
-        verify(mockCache).get(eq(CHARIZARD_CACHE_KEY), any());
+        verify(mockCache).getIfPresent(eq(CHARIZARD_CACHE_KEY));
         verifyNoMoreInteractions(mockCache);
     }
 
     @Test
     void shouldFetchAndCachedValue_whenCacheMissInGetOrFetch() {
-        when(mockCache.get(eq(CHARIZARD_CACHE_KEY), ArgumentMatchers.<Function<String, String>>any()))
-                .thenAnswer(invocation -> {
-                    Function<String, String> loader = invocation.getArgument(1);
-                    return loader.apply(CHARIZARD_CACHE_KEY);
-                });
+        when(mockCache.getIfPresent(CHARIZARD_CACHE_KEY)).thenReturn(null);
 
-        var cacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY, key -> CHARIZARD_CACHE_VALUE);
-        assertThat(cacheValue).isEqualTo(CHARIZARD_CACHE_VALUE);
+        var cacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY, key -> Optional.of(CHARIZARD_CACHE_VALUE));
+        assertThat(cacheValue).hasValue(CHARIZARD_CACHE_VALUE);
 
-        verify(mockCache).get(eq(CHARIZARD_CACHE_KEY), any(Function.class));
+        verify(mockCache).getIfPresent(eq(CHARIZARD_CACHE_KEY));
+        verify(mockCache).put(eq(CHARIZARD_CACHE_KEY), eq(CHARIZARD_CACHE_VALUE));
     }
 
     @Test
     void shouldReturnCachedValueAndNotCallValueLoader_whenCachedValueExists() {
-        when(mockCache.get(eq(CHARIZARD_CACHE_KEY), ArgumentMatchers.<Function<String, String>>any()))
-                .thenReturn(CHARIZARD_CACHE_VALUE);
+        when(mockCache.getIfPresent(eq(CHARIZARD_CACHE_KEY))).thenReturn(CHARIZARD_CACHE_VALUE);
 
         var cacheValue = cacheService.getOrFetch(CHARIZARD_CACHE_KEY, valueLoaderMock);
-        assertThat(cacheValue).isEqualTo(CHARIZARD_CACHE_VALUE);
+        assertThat(cacheValue).hasValue(CHARIZARD_CACHE_VALUE);
 
-        verify(mockCache).get(eq(CHARIZARD_CACHE_KEY), any(Function.class));
+        verify(mockCache).getIfPresent(eq(CHARIZARD_CACHE_KEY));
         verify(valueLoaderMock, never()).apply(anyString());
     }
 }
