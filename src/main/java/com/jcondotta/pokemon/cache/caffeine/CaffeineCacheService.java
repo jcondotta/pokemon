@@ -2,6 +2,7 @@ package com.jcondotta.pokemon.cache.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.jcondotta.pokemon.cache.CacheService;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class CaffeineCacheService<K, V> implements CacheService<K, V> {
         Objects.requireNonNull(cacheKey, "cache.key.notNull");
         Objects.requireNonNull(cacheValue, "cache.value.notNull");
 
-        LOGGER.debug("Adding entry to Caffeine cache: Key='{}', Value={}", cacheKey, cacheValue);
+        LOGGER.debug("Caffeine cache adding entry:  Key='{}', Value={}", cacheKey, cacheValue);
 
         cache.put(cacheKey, cacheValue);
 
@@ -32,12 +33,12 @@ public class CaffeineCacheService<K, V> implements CacheService<K, V> {
     }
 
     @Override
-    public Optional<V> getOrFetch(K cacheKey) {
+    public Optional<V> get(K cacheKey) {
         Objects.requireNonNull(cacheKey, "cache.key.notNull");
         var cachedValue = cache.getIfPresent(cacheKey);
 
         if (Objects.nonNull(cachedValue)) {
-            LOGGER.info("Cache hit: Key='{}' found.", cacheKey);
+            LOGGER.info("Cache hit: Key='{}' -> Value={}", cacheKey, cachedValue);
         }
         else {
             LOGGER.info("Cache miss: Key='{}' not found.", cacheKey);
@@ -47,16 +48,21 @@ public class CaffeineCacheService<K, V> implements CacheService<K, V> {
     }
 
     @Override
-    public V getOrFetch(K cacheKey, Function<K, V> valueLoader) {
+    public Optional<V> getOrFetch(@NotNull K cacheKey, Function<K, Optional<V>> valueLoader) {
         Objects.requireNonNull(cacheKey, "cache.key.notNull");
         Objects.requireNonNull(valueLoader, "cache.valueLoader.function.notNull");
 
-        return cache.get(cacheKey, key -> {
-            LOGGER.warn("Cache miss: Key='{}' not found, fetching from external source.", cacheKey);
+        return Optional.ofNullable(cache.getIfPresent(cacheKey))
+                .map(value -> {
+                    LOGGER.debug("Cache hit: Key='{}' -> Value={}", cacheKey, value);
+                    return value;
+                })
+                .or(() -> {
+                    LOGGER.warn("Cache miss: Key='{}' not found, fetching from external source.", cacheKey);
+                    Optional<V> value = valueLoader.apply(cacheKey);
 
-            V loadedValue = valueLoader.apply(key);
-            LOGGER.info("Cache store: Key='{}' successfully stored in cache.", cacheKey);
-            return loadedValue;
-        });
+                    value.ifPresent(v -> set(cacheKey, v));
+                    return value;
+                });
     }
 }

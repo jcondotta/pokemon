@@ -7,6 +7,6 @@ import java.util.function.Function;
 
 public interface ReadCacheService<K, V> {
 
-    Optional<V> getOrFetch(@NotNull K cacheKey);
-    V getOrFetch(@NotNull K cacheKey, Function<K, V> valueLoader);
+    Optional<V> get(@NotNull K cacheKey);
+    Optional<V> getOrFetch(@NotNull K cacheKey, Function<K, Optional<V>> valueLoader);
 }
