@@ -1,5 +1,6 @@
-package com.jcondotta.pokemon.service.client;
+package com.jcondotta.pokemon.infrastructure.api;
 
+import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
 import com.jcondotta.pokemon.helper.TestPokemon;
 import com.jcondotta.pokemon.helper.TestRestClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -21,22 +22,24 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @ExtendWith(MockitoExtension.class)
 @Execution(ExecutionMode.CONCURRENT)
-class PokemonDetailRestClientAPITest {
+class PokemonDetailFetcherAdapterTest {
 
     private final MockWebServer mockWebServer = new MockWebServer();
 
     private static final int PIKACHU_ID = TestPokemon.PIKACHU.getId();
     private static final String PIKACHU_DETAILS = TestPokemon.PIKACHU.getDetails();
 
-    private PokemonDetailAPIClient pokemonDetailAPIClient;
+    private PokemonFetchDetailsPort pokemonFetchDetailsPort;
 
     @BeforeEach
     void beforeEach() throws IOException {
         mockWebServer.start();
+        var restClient = TestRestClient.builder()
+                .readTimeout(100)
+                .build();
 
-        var restClient = TestRestClient.builder().build();
         var fetchPokemonURL = mockWebServer.url("/api/v2/pokemon/{id}").toString();
-        pokemonDetailAPIClient = new PokemonDetailRestClientAPI(restClient, fetchPokemonURL);
+        pokemonFetchDetailsPort = new PokemonFetchDetailAdapter(restClient, fetchPokemonURL);
     }
 
     @AfterEach
@@ -51,7 +54,7 @@ class PokemonDetailRestClientAPITest {
                 .setBody(PIKACHU_DETAILS)
                 .addHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE));
 
-        assertThat(pokemonDetailAPIClient.fetchById(PIKACHU_ID))
+        assertThat(pokemonFetchDetailsPort.fetchById(PIKACHU_ID))
                 .hasValueSatisfying(pikachu -> assertAll("Validating Pikachu properties",
                         () -> assertThat(pikachu.id()).isEqualTo(PIKACHU_ID),
                         () -> assertThat(pikachu.name()).isEqualTo("pikachu"),
@@ -69,7 +72,7 @@ class PokemonDetailRestClientAPITest {
 
         var nonExistentPokemonId = -1;
 
-        assertThat(pokemonDetailAPIClient.fetchById(nonExistentPokemonId)).isEmpty();
+        assertThat(pokemonFetchDetailsPort.fetchById(nonExistentPokemonId)).isEmpty();
     }
 
     @Test
@@ -79,7 +82,7 @@ class PokemonDetailRestClientAPITest {
                 .setBody("Internal Server Error")
                 .addHeader(CONTENT_TYPE, TEXT_PLAIN_VALUE));
 
-        assertThat(pokemonDetailAPIClient.fetchById(PIKACHU_ID)).isEmpty();
+        assertThat(pokemonFetchDetailsPort.fetchById(PIKACHU_ID)).isEmpty();
     }
 
     @Test
@@ -91,7 +94,7 @@ class PokemonDetailRestClientAPITest {
                 .setBodyDelay(150, TimeUnit.MILLISECONDS)
         );
 
-        assertThat(pokemonDetailAPIClient.fetchById(PIKACHU_ID))
+        assertThat(pokemonFetchDetailsPort.fetchById(PIKACHU_ID))
                 .isEmpty();
     }
 }

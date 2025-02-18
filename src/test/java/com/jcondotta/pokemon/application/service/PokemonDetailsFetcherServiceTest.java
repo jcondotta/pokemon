@@ -1,10 +1,10 @@
-package com.jcondotta.pokemon.service;
+package com.jcondotta.pokemon.application.service;
 
-import com.jcondotta.pokemon.cache.CacheService;
-import com.jcondotta.pokemon.cache.PokemonCacheKey;
+import com.jcondotta.pokemon.domain.model.Pokemon;
+import com.jcondotta.pokemon.domain.ports.out.CacheService;
+import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
 import com.jcondotta.pokemon.helper.TestPokemon;
-import com.jcondotta.pokemon.model.Pokemon;
-import com.jcondotta.pokemon.service.client.PokemonDetailRestClientAPI;
+import com.jcondotta.pokemon.infrastructure.persistence.cache.PokemonCacheKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PokemonDetailFetcherServiceTest {
+class PokemonDetailsFetcherServiceTest {
 
     private static final Integer KADABRA_ID = TestPokemon.KADABRA.getId();
     private static final Pokemon KADABRA = TestPokemon.KADABRA.pokemonDetailsToPokemon();
@@ -30,22 +30,22 @@ class PokemonDetailFetcherServiceTest {
     private CacheService<String, Pokemon> cacheService;
 
     @Mock
-    private PokemonDetailRestClientAPI pokemonAPIClient;
+    private PokemonFetchDetailsPort pokemonFetchDetailsPort;
 
     @InjectMocks
-    private PokemonDetailFetcherService pokemonDetailFetcherService;
+    private PokemonDetailsFetcherService pokemonDetailsFetcherService;
 
     @Test
     void shouldReturnCachedPokemon_whenCacheEntryExists() {
         when(cacheService.getOrFetch(eq(KADABRA_CACHE_KEY), any()))
                 .thenReturn(Optional.of(KADABRA));
 
-        assertThat(pokemonDetailFetcherService.fetchById(KADABRA_ID))
+        assertThat(pokemonDetailsFetcherService.fetchById(KADABRA_ID))
                 .hasValue(KADABRA);
 
         verify(cacheService).getOrFetch(anyString(), any());
         verify(cacheService, never()).set(anyString(), any());
-        verify(pokemonAPIClient, never()).fetchById(anyInt());
+        verify(pokemonFetchDetailsPort, never()).fetchById(anyInt());
     }
 
     @Test
@@ -56,12 +56,12 @@ class PokemonDetailFetcherServiceTest {
                     return loader.apply(KADABRA_CACHE_KEY);
                 });
 
-        when(pokemonAPIClient.fetchById(KADABRA_ID)).thenReturn(Optional.of(KADABRA));
+        when(pokemonFetchDetailsPort.fetchById(KADABRA_ID)).thenReturn(Optional.of(KADABRA));
 
-        assertThat(pokemonDetailFetcherService.fetchById(KADABRA_ID))
+        assertThat(pokemonDetailsFetcherService.fetchById(KADABRA_ID))
                 .hasValue(KADABRA);
 
-        verify(pokemonAPIClient).fetchById(KADABRA_ID);
+        verify(pokemonFetchDetailsPort).fetchById(KADABRA_ID);
     }
 
     @Test
@@ -72,11 +72,11 @@ class PokemonDetailFetcherServiceTest {
                     return loader.apply(KADABRA_CACHE_KEY);
                 });
 
-        when(pokemonAPIClient.fetchById(KADABRA_ID)).thenReturn(Optional.empty());
+        when(pokemonFetchDetailsPort.fetchById(KADABRA_ID)).thenReturn(Optional.empty());
 
-        assertThat(pokemonDetailFetcherService.fetchById(KADABRA_ID)).isEmpty();
+        assertThat(pokemonDetailsFetcherService.fetchById(KADABRA_ID)).isEmpty();
 
-        verify(pokemonAPIClient).fetchById(KADABRA_ID);
+        verify(pokemonFetchDetailsPort).fetchById(KADABRA_ID);
         verify(cacheService, never()).set(anyString(), any());
     }
 }
