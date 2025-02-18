@@ -1,4 +1,4 @@
-package com.jcondotta.pokemon.model;
+package com.jcondotta.pokemon.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

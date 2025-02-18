@@ -1,4 +1,4 @@
-package com.jcondotta.pokemon.web.controllers;
+package com.jcondotta.pokemon.infrastructure.web;
 
 public interface PokemonAPIPath {
 

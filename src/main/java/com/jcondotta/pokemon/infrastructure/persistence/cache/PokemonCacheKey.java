@@ -1,4 +1,4 @@
-package com.jcondotta.pokemon.cache;
+package com.jcondotta.pokemon.infrastructure.persistence.cache;
 
 public enum PokemonCacheKey {
     POKEMON_DETAILS("pokemon:details:%s");

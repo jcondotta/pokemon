@@ -1,7 +1,7 @@
-package com.jcondotta.pokemon.service.client;
+package com.jcondotta.pokemon.infrastructure.api;
 
-import com.jcondotta.pokemon.model.Pokemon;
-import com.jcondotta.pokemon.service.client.exceptions.PokemonExternalAPIException;
+import com.jcondotta.pokemon.domain.model.Pokemon;
+import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,14 +16,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-public class PokemonDetailRestClientAPI implements PokemonDetailAPIClient {
+public class PokemonFetchDetailAdapter implements PokemonFetchDetailsPort {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PokemonDetailRestClientAPI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PokemonFetchDetailAdapter.class);
 
     private final RestClient restClient;
     private final String fetchPokemonURL;
 
-    public PokemonDetailRestClientAPI(RestClient restClient, @Value("${pokemon.api.fetch-by-id.url}") String fetchPokemonURL) {
+    public PokemonFetchDetailAdapter(RestClient restClient, @Value("${pokemon.api.fetch-by-id.url}") String fetchPokemonURL) {
         this.restClient = restClient;
         this.fetchPokemonURL = fetchPokemonURL;
     }
@@ -39,7 +39,8 @@ public class PokemonDetailRestClientAPI implements PokemonDetailAPIClient {
                     .uri(pokemonURI)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (request, response) -> {
-                        throw new PokemonExternalAPIException(response.getStatusText(), response.getStatusCode());
+                        LOGGER.warn("Pokémon ID: {} - API request failed with status {}: {}",
+                                pokemonId, response.getStatusCode(), response.getStatusText());
                     })
                     .body(Pokemon.class);
 
@@ -48,15 +49,9 @@ public class PokemonDetailRestClientAPI implements PokemonDetailAPIClient {
 
             return Optional.ofNullable(pokemon);
         }
-        catch (PokemonExternalAPIException e) {
-            long elapsedTimeMs = calculateElapsedTime(startTime);
-            LOGGER.warn("Pokémon ID: {} - API request failed with status {} in {} ms - {}",
-                    pokemonId, e.getStatusCode(), elapsedTimeMs, e.getMessage());
-        }
         catch (Exception e) {
             long elapsedTimeMs = calculateElapsedTime(startTime);
-            LOGGER.error("Pokémon ID: {} - Unexpected fetch failure in {} ms - {}",
-                    pokemonId, elapsedTimeMs, e.getMessage());
+            LOGGER.error("Pokémon ID: {} - Fetch failed in {} ms: {}", pokemonId, elapsedTimeMs, e.getMessage());
         }
 
         return Optional.empty();

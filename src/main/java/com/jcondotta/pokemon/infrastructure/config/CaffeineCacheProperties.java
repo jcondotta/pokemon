@@ -1,4 +1,4 @@
-package com.jcondotta.pokemon.config;
+package com.jcondotta.pokemon.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
