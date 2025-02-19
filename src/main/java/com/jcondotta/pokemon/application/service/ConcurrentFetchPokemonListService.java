@@ -57,7 +57,8 @@ public class ConcurrentFetchPokemonListService implements FetchPokemonListUseCas
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return pokemonFetchDetailsPort.fetchById(pokemonId);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Failed to fetch Pokémon ID: {} - {}", pokemonId, e.getMessage());
                 return Optional.empty();
             }
@@ -73,7 +74,8 @@ public class ConcurrentFetchPokemonListService implements FetchPokemonListUseCas
                 LOGGER.warn("Forcing shutdown of ExecutorService...");
                 executorService.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             LOGGER.error("ExecutorService shutdown interrupted: {}", e.getMessage());
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
