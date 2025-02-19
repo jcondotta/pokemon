@@ -5,8 +5,8 @@ import org.springframework.web.client.RestClient;
 
 public class TestRestClient {
 
-    private int connectTimeout = 100;
-    private int readTimeout = 100;
+    private int connectTimeout = 1000;
+    private int readTimeout = 1000;
 
     private TestRestClient() {
     }

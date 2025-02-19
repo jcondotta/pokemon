@@ -1,11 +1,13 @@
-package com.jcondotta.pokemon.infrastructure.api;
+package com.jcondotta.pokemon.infrastructure.adapters.out.api;
 
-import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
+import com.jcondotta.pokemon.application.ports.out.api.PokemonFetchDetailsPort;
 import com.jcondotta.pokemon.helper.TestPokemon;
 import com.jcondotta.pokemon.helper.TestRestClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -38,8 +40,8 @@ class PokemonDetailFetcherAdapterTest {
                 .readTimeout(100)
                 .build();
 
-        var fetchPokemonURL = mockWebServer.url("/api/v2/pokemon/{id}").toString();
-        pokemonFetchDetailsPort = new PokemonFetchDetailAdapter(restClient, fetchPokemonURL);
+        var fetchPokemonURI = mockWebServer.url("/api/v2/pokemon/{id}").uri();
+        pokemonFetchDetailsPort = new PokemonFetchDetailAdapter(restClient, fetchPokemonURI.toString());
     }
 
     @AfterEach
@@ -90,8 +92,8 @@ class PokemonDetailFetcherAdapterTest {
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody(PIKACHU_DETAILS)
-                .addHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .setBodyDelay(150, TimeUnit.MILLISECONDS)
+                .addHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
         );
 
         assertThat(pokemonFetchDetailsPort.fetchById(PIKACHU_ID))

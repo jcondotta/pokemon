@@ -1,0 +1,6 @@
+pokemon:
+  api:
+    list-url:
+      limit: 2
+    fetch-by-id:
+      thread-pool-size: 50

@@ -1,10 +1,10 @@
 package com.jcondotta.pokemon.application.service;
 
+import com.jcondotta.pokemon.application.ports.out.api.PokemonFetchDetailsPort;
+import com.jcondotta.pokemon.application.ports.out.cache.CacheService;
 import com.jcondotta.pokemon.domain.model.Pokemon;
-import com.jcondotta.pokemon.domain.ports.out.CacheService;
-import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
 import com.jcondotta.pokemon.helper.TestPokemon;
-import com.jcondotta.pokemon.infrastructure.persistence.cache.PokemonCacheKey;
+import com.jcondotta.pokemon.infrastructure.adapters.out.cache.PokemonCacheKeys;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ class PokemonDetailsFetcherServiceTest {
     private static final Integer KADABRA_ID = TestPokemon.KADABRA.getId();
     private static final Pokemon KADABRA = TestPokemon.KADABRA.pokemonDetailsToPokemon();
 
-    private static final String KADABRA_CACHE_KEY = PokemonCacheKey.POKEMON_DETAILS.format(KADABRA_ID);
+    private static final String KADABRA_CACHE_KEY = PokemonCacheKeys.pokemonDetails(KADABRA_ID);
 
     @Mock
     private CacheService<String, Pokemon> cacheService;

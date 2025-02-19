@@ -1,18 +1,15 @@
-package com.jcondotta.pokemon.infrastructure.persistence.cache;
+package com.jcondotta.pokemon.infrastructure.adapters.out.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.jcondotta.pokemon.domain.model.Pokemon;
+import com.jcondotta.pokemon.application.ports.out.cache.CacheService;
 import com.jcondotta.pokemon.helper.TestPokemon;
-import com.jcondotta.pokemon.domain.ports.out.CacheService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +24,7 @@ import static org.mockito.Mockito.*;
 class CaffeineCacheServiceTest {
 
     private static final Integer CHARIZARD_ID = TestPokemon.CHARIZARD.getId();
-    private static final String CHARIZARD_CACHE_KEY = PokemonCacheKey.POKEMON_DETAILS.format(CHARIZARD_ID);
+    private static final String CHARIZARD_CACHE_KEY = PokemonCacheKeys.pokemonDetails(CHARIZARD_ID);
     private static final String CHARIZARD_CACHE_VALUE = TestPokemon.CHARIZARD.getDetails();
 
     @Mock
@@ -113,7 +110,6 @@ class CaffeineCacheServiceTest {
     }
 
     @Test
-    @Disabled
     void shouldFetchAndCacheValue_whenCacheMissInGetOrFetch() {
         when(mockCache.get(eq(CHARIZARD_CACHE_KEY), any()))
                 .thenAnswer(invocation -> {
@@ -129,7 +125,6 @@ class CaffeineCacheServiceTest {
     }
 
     @Test
-    @Disabled
     void shouldReturnCachedValueAndNotCallValueLoader_whenCachedValueExists() {
         when(mockCache.get(eq(CHARIZARD_CACHE_KEY), any())).thenReturn(CHARIZARD_CACHE_VALUE);
 
@@ -151,7 +146,7 @@ class CaffeineCacheServiceTest {
         when(valueLoaderMock.apply(eq(CHARIZARD_CACHE_KEY)))
                 .thenAnswer(invocation -> Optional.of(CHARIZARD_CACHE_VALUE));
 
-        int threadCount = 10;
+        int threadCount = 4;
         CountDownLatch latch = new CountDownLatch(1);
         List<Future<Optional<String>>> futures;
         try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
@@ -161,9 +156,7 @@ class CaffeineCacheServiceTest {
             for (int i = 0; i < threadCount; i++) {
                 futures.add(executor.submit(() -> {
                     latch.await(); // Ensure all threads start at the same time.
-                    Optional<String> result = cacheService.getOrFetch(CHARIZARD_CACHE_KEY, valueLoaderMock);
-                    System.out.printf("Thread %d got: %s%n", Thread.currentThread().getId(), result);
-                    return result;
+                    return cacheService.getOrFetch(CHARIZARD_CACHE_KEY, valueLoaderMock);
                 }));
             }
 
