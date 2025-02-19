@@ -8,7 +8,15 @@ This project is a Spring Boot application that exposes RESTful APIs to retrieve 
 
 The data is fetched from the public [PokéAPI](https://pokeapi.co/api/v2/) and is cached to reduce external API calls and improve response times. The application also demonstrates the use of concurrent fetching to efficiently retrieve detailed Pokémon data.
 
-## Tech Stack
+### Project Architecture
+
+This project follows a hexagonal (ports and adapters) architecture. The application is structured into several layers:
+
+- **Core Domain**: Contains the domain models and business logic.
+- **Ports**: Defines interfaces for external systems (e.g., API calls, caching).
+- **Adapters**: Implements the interfaces defined by the ports for communication with external systems such as the PokéAPI.
+- **Application Services**: Orchestrates the business logic by leveraging the domain and external adapters.
+This separation of concerns makes the system flexible, testable, and easy to maintain.
 
 ### Languages & Frameworks:
 
