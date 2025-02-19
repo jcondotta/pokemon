@@ -51,6 +51,12 @@ curl -X GET 'http://localhost:8080/api/v1/pokemon/top-tallest' -H "Accept: appli
 ```bash
   curl -X GET 'http://localhost:8080/api/v1/pokemon/top-experienced' -H "Accept: application/json"
 ```
+
+#### Response example:
+```json
+{"pokemonList":[{"name":"blissey","rankingValue":635},{"name":"eternatus-eternamax","rankingValue":563},{"name":"audino-mega","rankingValue":425},{"name":"chansey","rankingValue":395},{"name":"audino","rankingValue":390}],"count":5}
+```
+
 #### Custom Ranking Size:
 Each endpoint supports a custom ranking size through the topN query parameter. 
 If a client needs a different number of results, they can override the default by specifying the desired value. 
@@ -101,38 +107,3 @@ Increase integration tests, including performance benchmarks and stress tests, t
 This project demonstrates a production-ready implementation of a RESTful service using modern Java, Spring Boot, and robust testing practices. 
 It fulfills the requirements of providing ranked Pokémon data (heaviest, tallest, and experienced) with high test coverage and a scalable design. 
 Future enhancements will focus on improving resilience, security, and scalability as we move towards a fully cloud-native microservices architecture.
-
-
-
-
-
-
-
-
-2. **Retrieve the Token**:    
-    If the request is successful, the API will respond with a JWT (JSON Web Token). The response will look similar to this:
-```json
-{
-  "access_token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZWZhdWx0IiwibmJmIjo...",
-  "token_type":"Bearer",
-  "expires_in":3600,
-  "username":"default"
-}
-```
-3. **Store the Token**:        
-    Copy and save the access_token from the response. This token will be used for authentication when making requests to protected endpoints.
-
-
-4. **Use the Token for Subsequent API Calls**
-    To access protected endpoints, include the token in the Authorization header as a Bearer token. Here’s an example using cURL:
-```bash
-curl -i --request POST \
-  --url 'http://localhost:8086/api/v1/recipients' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer <your-access-token>' \
-  --data-raw '{
-    "bankAccountId": "01920bff-1338-7efd-ade6-e9128debe5d4",
-    "recipientName": "My first recipient",
-    "recipientIban": "IT49W0300203280114524628857"
-  }'
-```
