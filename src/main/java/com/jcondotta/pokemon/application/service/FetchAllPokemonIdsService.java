@@ -7,7 +7,6 @@ import com.jcondotta.pokemon.infrastructure.config.PokemonListURLProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Duration;
@@ -83,27 +82,6 @@ public class FetchAllPokemonIdsService implements FetchAllPokemonIdsUseCase {
         }
     }
 
-    /**
-     * Builds the initial API URI to start fetching Pokémon list.
-     *
-     * @param offset The offset to start fetching.
-     * @param limit  The number of items to fetch.
-     * @return The constructed URI.
-     */
-    private URI buildFetchPokemonURI(int offset, int limit) {
-        return UriComponentsBuilder.fromUriString(pokemonListURLProperties.url())
-                .queryParam("offset", offset)
-                .queryParam("limit", limit)
-                .build()
-                .toUri();
-    }
-
-    /**
-     * Extracts Pokémon ID from the Pokémon URL.
-     *
-     * @param url The URL containing the Pokémon ID.
-     * @return The extracted Pokémon ID.
-     */
     private int extractPokemonIdFromURL(String url) {
         try {
             String[] parts = url.split("/");
