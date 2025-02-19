@@ -11,10 +11,8 @@ import java.util.*;
 public class PaginatedListHandler {
 
     public MockResponse handlePaginatedList(HttpUrl requestUrl) {
-        // Ensure requestUrl is not null
         Objects.requireNonNull(requestUrl, "Request URL cannot be null");
 
-        // Parse query parameters safely with default values
         int offset = Optional.ofNullable(requestUrl.queryParameter("offset"))
                 .map(Integer::parseInt)
                 .orElse(0);
@@ -25,7 +23,6 @@ public class PaginatedListHandler {
 
         int totalCount = TestPokemon.values().length;
 
-        // Build the next URL for pagination safely
         String nextUrl = (offset + limit < totalCount)
                 ? requestUrl.newBuilder()
                 .setQueryParameter("offset", String.valueOf(offset + limit))
@@ -34,12 +31,10 @@ public class PaginatedListHandler {
                 .toString()
                 : null;
 
-        // Build clean base URL without query params
         HttpUrl cleanBaseUrl = requestUrl.newBuilder()
-                .query(null)  // Remove query parameters
+                .query(null)
                 .build();
 
-        // Build results for the current page
         List<Map<String, String>> results = Arrays.stream(TestPokemon.values())
                 .skip(offset)
                 .limit(limit)
@@ -54,7 +49,7 @@ public class PaginatedListHandler {
 
         Map<String, Object> response = Map.ofEntries(
                 Map.entry("count", totalCount),
-                Map.entry("next", nextUrl != null ? nextUrl : ""),  // Replace null with empty string
+                Map.entry("next", nextUrl != null ? nextUrl : ""),
                 Map.entry("results", results)
         );
 

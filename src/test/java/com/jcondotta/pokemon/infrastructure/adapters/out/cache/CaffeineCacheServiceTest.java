@@ -166,13 +166,11 @@ class CaffeineCacheServiceTest {
 //            executor.awaitTermination(5, TimeUnit.SECONDS);
         }
 
-        // Verify that all threads got the expected cached value.
         for (Future<Optional<String>> future : futures) {
             assertThat(future.get()).as("All threads should get the same cached value")
                     .hasValue(CHARIZARD_CACHE_VALUE);
         }
 
-        // Verify that the loader was invoked exactly once.
         verify(valueLoaderMock, times(1)).apply(eq(CHARIZARD_CACHE_KEY));
     }
 

@@ -11,8 +11,6 @@ import java.util.Optional;
 
 public class FetchByIdHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FetchByIdHandler.class);
-
     public MockResponse handleFetchById(String path) {
         try {
             var pokemonId = extractIdFromPath(path)
@@ -39,10 +37,8 @@ public class FetchByIdHandler {
 
     public static Optional<Integer> extractIdFromPath(String url) {
         try {
-            // Remove query parameters
             String cleanUrl = url.split("\\?")[0];
 
-            // Extract the last path segment
             String idStr = cleanUrl.substring(cleanUrl.lastIndexOf("/") + 1);
 
             return Optional.of(Integer.parseInt(idStr));

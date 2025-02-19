@@ -56,7 +56,7 @@ class TopTallestPokemonControllerIT {
     void beforeEach(@LocalServerPort int port) {
         requestSpecification = RestAssured.given()
                 .baseUri("http://localhost:" + port)
-                .basePath(PokemonAPIPath.POKEMON_TOP_TALLEST) // Update to the correct path for tallest
+                .basePath(PokemonAPIPath.POKEMON_TOP_TALLEST)
                 .contentType(ContentType.JSON);
     }
 
