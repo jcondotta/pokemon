@@ -4,14 +4,17 @@ spring:
 
 cache:
   caffeine:
-    expire-after-write-seconds: 20
-    maximum-size: 100
+    expire-after-write-seconds: 30000
+    maximum-size: 10000
 
 pokemon:
   api:
+    list-url:
+      url: 'https://pokeapi.co/api/v2/pokemon'
+      limit: 100
     fetch-by-id:
       url: 'https://pokeapi.co/api/v2/pokemon/{id}'
-      thread-pool-size: 10
+      thread-pool-size: 50
 
 springdoc:
   api-docs:

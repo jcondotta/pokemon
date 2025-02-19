@@ -1,10 +1,10 @@
 package com.jcondotta.pokemon.application.service;
 
+import com.jcondotta.pokemon.application.ports.out.api.PokemonFetchDetailsPort;
+import com.jcondotta.pokemon.application.ports.out.cache.CacheService;
+import com.jcondotta.pokemon.application.usecases.FetchPokemonDetailsUseCase;
 import com.jcondotta.pokemon.domain.model.Pokemon;
-import com.jcondotta.pokemon.domain.ports.in.PokemonFetchDetailsUseCase;
-import com.jcondotta.pokemon.domain.ports.out.CacheService;
-import com.jcondotta.pokemon.domain.ports.out.PokemonFetchDetailsPort;
-import com.jcondotta.pokemon.infrastructure.persistence.cache.PokemonCacheKeys;
+import com.jcondotta.pokemon.infrastructure.adapters.out.cache.PokemonCacheKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-public class PokemonDetailsFetcherService implements PokemonFetchDetailsUseCase {
+public class PokemonDetailsFetcherService implements FetchPokemonDetailsUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PokemonDetailsFetcherService.class);
 
