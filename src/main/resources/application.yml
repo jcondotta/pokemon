@@ -10,7 +10,7 @@ cache:
 pokemon:
   api:
     list-url:
-      url: 'https://pokeapi.co/api/v2/pokemon'
+      url: 'https://pokeapi.co/api/v2/pokemon?limit=100'
       limit: 100
     fetch-by-id:
       url: 'https://pokeapi.co/api/v2/pokemon/{id}'

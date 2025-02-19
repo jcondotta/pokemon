@@ -44,7 +44,7 @@ public class PokemonFetchDetailAdapter implements PokemonFetchDetailsPort {
                     .body(Pokemon.class);
 
             var elapsedTimeMs = calculateElapsedTime(startTime);
-            LOGGER.debug("Pokémon ID: {} - Successfully fetched from API in {} ms", pokemonId, elapsedTimeMs);
+            LOGGER.info("Pokémon ID: {} - Successfully fetched from API in {} ms", pokemonId, elapsedTimeMs);
 
             return Optional.ofNullable(pokemon);
         }

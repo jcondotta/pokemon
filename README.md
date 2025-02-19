@@ -79,9 +79,6 @@ Improve error messages and incorporate fallback mechanisms in case the external 
 - Dynamic Caching Strategies:
 Explore more dynamic caching policies such as cache invalidation, refreshing stale data, or distributed caching for scalability.
 
-- Rate Limiting & Resilience:
-Integrate rate limiting to prevent excessive calls to the PokéAPI and incorporate circuit breaker patterns for improved resiliency.
-
 - Security Enhancements:
 Add security measures (e.g., OAuth2 or JWT) to secure the API endpoints for production scenarios.
 
