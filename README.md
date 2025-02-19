@@ -39,7 +39,7 @@ curl -X GET 'http://localhost:8080/api/v1/pokemon/top-heaviest?topN=10' -H "Acce
 ```bash
 curl -X GET 'http://localhost:8080/api/v1/pokemon/top-tallest' -H "Accept: application/json"
 ```
- - Retrieve Top 7 Experienced Pokémon:
+ - Retrieve Top 5 Experienced Pokémon:
 ```bash
   curl -X GET 'http://localhost:8080/api/v1/pokemon/top-experienced' -H "Accept: application/json"
 ```
